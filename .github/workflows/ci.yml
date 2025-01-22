@@ -36,7 +36,7 @@ jobs:
           python-version: '3.8'
 
       - name: Install dependencies
-        run: pip install pytest pytest-cov numpy coverage
+        run: pip install pytest pytest-cov numpy matplotlib coverage
 
       - name: Run tests with coverage
         run: | 
