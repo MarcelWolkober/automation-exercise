@@ -1,0 +1,82 @@
+name: CI
+
+on: [push]
+
+jobs:
+  style_check:
+    name: Style Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install black
+        run: pip install black
+
+      - name: Run black
+        run: black --check .
+
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'
+
+      - name: Install dependencies
+        run: pip install pytest pytest-cov numpy coverage
+
+      - name: Run tests with coverage
+        run: | 
+            coverage run -m pytest 
+
+      - name: Upload coverage artifact
+        uses: actions/upload-artifact@v4
+        with:
+          include-hidden-files: true
+          name: coverage-report
+          path: .coverage
+          retention-days: 1
+
+  coverage_report:
+    name: Coverage Report
+    runs-on: ubuntu-latest
+    needs: test
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Download coverage artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: coverage-report
+          path: .
+
+      - name: Install coverage
+        run: pip install coverage
+
+      - name: Generate coverage report
+        run: coverage report
+
+      - name: Generate coverage XML
+        run: coverage xml
+
+      - name: Upload coverage XML
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-xml
+          path: coverage.xml
+          retention-days: 14
